@@ -10,11 +10,11 @@ const saltForBcrypt = config.get('saltForBcrypt');
 const jwtSecret = config.get('jwtSecret');
 const expiresTime = config.get('expiresTime');
 
-router.get('/', auth, async (require, response) => {
+router.get('/', auth, async (request, response) => {
   try {
-  //  console.log(require.user.id);
+  //  console.log(request.user.id);
 
-    const user = await User.findById(require.user.id)
+    const user = await User.findById(request.user.id)
       .select('-password')
       .select('-data');
     response.json(user);
@@ -32,26 +32,26 @@ router.post(
       .exists()
       .isLength({ min: 6 })
   ],
-  async (require, response) => {
-    const errors = validationResult(require);
+  async (request, response) => {
+    const errors = validationResult(request);
 
     if (!errors.isEmpty()) {
       return response.status(400).json({ errors: errors.array() });
     }
-    const { email, password } = require.body;
+    const { email, password } = request.body;
     try {
       let user = await User.findOne({ email });
       if (!user) {
         return response
           .status(400)
-          .json({ errors: [{ msg: 'Invalid Dredentials' }] });
+          .json({ errors: [{ msg: 'Invalid Credentials' }] });
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return response
           .status(400)
-          .json({ errors: [{ msg: 'Invalid Dredentials' }] });
+          .json({ errors: [{ msg: 'Invalid Credentials' }] });
       }
 
       const payload = {
