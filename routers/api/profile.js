@@ -159,4 +159,65 @@ router.delete('/', auth, async (request, response) => {
   }
 });
 
+//@route    PUT api/profile/experience
+//@desc     add profile experienc
+//@access   Privat
+
+router.put(
+  '/experience',
+  [
+    auth,
+    [
+      check('tytel', 'Tytel is valid')
+        .not()
+        .isEmpty(),
+      check('company', 'Company is valid')
+        .not()
+        .isEmpty(),
+      check('from', 'from is valid')
+        .not()
+        .isEmpty()
+    ]
+  ],
+  async (request, response) => {
+    const errorsCheck = validationResult(request);
+    if (!errorsCheck.isEmpty()) {
+      return response.send(400).json({ error: errorsCheck });
+    }
+    const { tytel, company, current, from, to } = request.body;
+
+    const newExp = { tytel, company, current, from, to };
+
+    try {
+      const profile = await Profile.findOne({ user: request.user.id });
+      profile.experience.unshift(newExp);
+      await profile.save();
+      response.json(profile);
+    } catch (error) {
+      console.log(error);
+      response.status(500).json({ error: error });
+    }
+  }
+);
+
+//@route    DELETE api/profile/experience/:exp_id
+//@desc     delete experience
+//@access   Privat
+
+router.delete('/experience/:exp_id', auth, async (request, response) => {
+  try {
+    const profile = await Profile.findOne({ user: request.user.id });
+
+    const removeItem = profile.experience
+      .map(item => item.id)
+      .indexOf(request.params.exp_id);
+    profile.experience.splice(removeItem, 1);
+
+    await profile.save();
+    response.json(profile);
+  } catch (err) {
+    response.status(500).json({ error: err });
+  }
+});
+
 module.exports = router;
