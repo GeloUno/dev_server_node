@@ -49,6 +49,7 @@ router.post(
       return response.status(400).json({ errors: errors.array() });
     }
     const {
+      company,
       website,
       status,
       skills,
@@ -63,12 +64,13 @@ router.post(
     //Build profile
     const profileFields = {};
     profileFields.user = request.user.id;
-    if (website) profileFields.website = website;
-    if (status) profileFields.status = status;
-    if (skills) profileFields.skills = skills;
-    if (social) profileFields.social = social;
-    if (location) profileFields.location = location;
-    if (bio) profileFields.bio = bio;
+    profileFields.website = website;
+    profileFields.company = company;
+    profileFields.status = status;
+    profileFields.skills = skills;
+    profileFields.social = social;
+    profileFields.location = location;
+    profileFields.bio = bio;
 
     if (skills) {
       profileFields.skills = skills.split(',').map(skill => skill.trim());
@@ -168,7 +170,7 @@ router.put(
   [
     auth,
     [
-      check('tytel', 'Tytel is valid')
+      check('title', 'Title is valid')
         .not()
         .isEmpty(),
       check('company', 'Company is valid')
@@ -180,17 +182,57 @@ router.put(
     ]
   ],
   async (request, response) => {
+
     const errorsCheck = validationResult(request);
     if (!errorsCheck.isEmpty()) {
-      return response.send(400).json({ error: errorsCheck });
+      return response.status(400).json({ error: errorsCheck.array() });
     }
-    const { tytel, company, current, from, to } = request.body;
+    const { title, company, current, from, to } = request.body;
 
-    const newExp = { tytel, company, current, from, to };
+    const newExp = { title, company, current, from, to };
 
     try {
       const profile = await Profile.findOne({ user: request.user.id });
       profile.experience.unshift(newExp);
+      await profile.save();
+      response.json(profile);
+    } catch (error) {
+      console.log(error);
+      response.status(500).json({ error: error });
+    }
+  }
+);
+
+router.put(
+  '/education',
+  [
+    auth,
+    [
+      check('school', 'Title is valid')
+        .not()
+        .isEmpty(),
+      check('degree', 'Company is valid')
+        .not()
+        .isEmpty(),
+      check('from', 'from is valid')
+        .not()
+        .isEmpty()
+    ]
+  ],
+  async (request, response) => {
+    console.log();
+
+    const errorsCheck = validationResult(request);
+    if (!errorsCheck.isEmpty()) {
+      return response.status(400).json({ error: errorsCheck.array() });
+    }
+    const { school, degree, current, from, to } = request.body;
+
+    const newEdu = { school, degree, current, from, to };
+
+    try {
+      const profile = await Profile.findOne({ user: request.user.id });
+      profile.education.unshift(newEdu);
       await profile.save();
       response.json(profile);
     } catch (error) {
@@ -211,7 +253,26 @@ router.delete('/experience/:exp_id', auth, async (request, response) => {
     const removeItem = profile.experience
       .map(item => item.id)
       .indexOf(request.params.exp_id);
+
     profile.experience.splice(removeItem, 1);
+
+    await profile.save();
+    response.json(profile);
+  } catch (err) {
+    response.status(500).json({ error: err });
+  }
+});
+
+
+router.delete('/education/:exp_id', auth, async (request, response) => {
+  try {
+    const profile = await Profile.findOne({ user: request.user.id });
+
+    const removeItem = profile.education
+      .map(item => item.id)
+      .indexOf(request.params.exp_id);
+
+    profile.education.splice(removeItem, 1);
 
     await profile.save();
     response.json(profile);

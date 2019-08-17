@@ -9,6 +9,10 @@ const ProfileSchema = new mongoose.Schema({
     type: String,
     requred: true
   },
+  company: {
+    type: String,
+    requred: true
+  },
   status: {
     type: String,
     requred: true
@@ -61,7 +65,7 @@ const ProfileSchema = new mongoose.Schema({
   ],
   experience: [
     {
-      tytel: {
+      title: {
         type: String,
         required: true
       },

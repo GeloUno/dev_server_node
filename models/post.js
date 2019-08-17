@@ -37,6 +37,11 @@ const postSchema = new Schema({
         reqired: true,
         trim: true
       },
+      email: {
+        type: String,
+        reqired: true,
+        trim: true
+      },
       date: {
         type: Date,
         default: Date.now
