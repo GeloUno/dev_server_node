@@ -208,10 +208,10 @@ router.put(
   [
     auth,
     [
-      check('school', 'Title is valid')
+      check('school', 'School is valid')
         .not()
         .isEmpty(),
-      check('degree', 'Company is valid')
+      check('degree', 'Degree is valid')
         .not()
         .isEmpty(),
       check('from', 'from is valid')
@@ -220,15 +220,13 @@ router.put(
     ]
   ],
   async (request, response) => {
-    console.log();
-
     const errorsCheck = validationResult(request);
     if (!errorsCheck.isEmpty()) {
       return response.status(400).json({ error: errorsCheck.array() });
     }
-    const { school, degree, current, from, to } = request.body;
+    const { school, degree, fieldofstudy,current, from, to } = request.body;
 
-    const newEdu = { school, degree, current, from, to };
+    const newEdu = { school, degree, fieldofstudy, current, from, to };
 
     try {
       const profile = await Profile.findOne({ user: request.user.id });
@@ -236,7 +234,7 @@ router.put(
       await profile.save();
       response.json(profile);
     } catch (error) {
-      console.log(error);
+      console.log(error.response.data);
       response.status(500).json({ error: error });
     }
   }

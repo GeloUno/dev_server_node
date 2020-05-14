@@ -11,10 +11,6 @@ app.use(express.json({
 extended:false
 }));
 
-app.get("/",(require,response)=>{
-   console.dir(require)
-    response.send(require) 
-})
 
 app.use('/api/users', require('./routers/api/users'));
 app.use('/api/profile', require('./routers/api/profile'));

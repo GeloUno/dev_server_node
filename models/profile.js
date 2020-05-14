@@ -48,6 +48,10 @@ const ProfileSchema = new mongoose.Schema({
         type: String,
         required: true
       },
+      fieldofstudy: {
+        type: String,
+        required: true
+      },
       current: {
         type: Boolean,
         default: false
